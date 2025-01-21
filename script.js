@@ -33,12 +33,15 @@ const calculate = (btnValue) => {
     display.focus();
     if (btnValue === "=" && output !== "") {
         output = eval(output.replace("%", "/100"));
-    } else if (btnValue === "AC") {
+    } 
+    else if (btnValue === "AC") {
         output = "";
-    } else if (btnValue === "DEL") {
-        output = output.toString().slice(0, -1);
-    } else {
-        if (output === "" && specialChars.includes(btnValue)) return;
+    } 
+    else if (btnValue === "DEL") {
+        output = output.toString().slice(0, -1); return;
+    }
+    else {
+        if (output === "" && specialChars.includes(btnValue))
         output += btnValue;
     }
     display.value = output;

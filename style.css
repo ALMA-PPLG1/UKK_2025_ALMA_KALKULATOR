@@ -35,7 +35,7 @@ body {
     font-size: 25px;
     color: black;
     pointer-events: none;
-    background-color: #f4f4f4;
+    background-color: #fffdfd;
     border-radius: 6px;
     width: f;
 }
@@ -52,7 +52,7 @@ body {
     border: none;
     font-size: 20px;
     cursor: pointer;
-    background-color: aliceblue;
+    background-color: rgb(245, 249, 253);
     transition: background-color 0.2s, transform 0.1s;
 }
 
@@ -73,6 +73,6 @@ body {
 .operator:active {
     transform: scale(0.95);  
 }
-#twoblok{
+/* #twoblok{
     grid-column: span 2;
-}
+} */

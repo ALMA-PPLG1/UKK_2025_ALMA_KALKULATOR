@@ -37,8 +37,8 @@ const calculate = (btnValue) => {
     else if (btnValue === "AC") {
         output = "";
     } 
-    else if (btnValue === "DEL") {
-        output = output.toString().slice(0, -1); return;
+    else if(btnValue==="DEL"){
+        output=output.toString().slice(0,-1);
     }
     else {
         if (output === "" && specialChars.includes(btnValue))

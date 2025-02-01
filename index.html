@@ -42,12 +42,13 @@
 </body>
 <script>
 
-    const display = document.querySelector(".display");
-    const buttons = document.querySelectorAll("button");
-    const operator = ["%", "*", "/", "-", "+", "="];
-    let output = "";
+const display = document.querySelector(".display");
+const buttons = document.querySelectorAll("button");
+const operator = ["%", "*", "/", "-", "+", "="];
+let output = "";
+let isResultDisplayed = false; // Menandakan apakah hasil sudah ditampilkan
 
-// Fungsi untuk memformat angka dengan titik pemisah ribuan
+// Fungsi untuk memformat angka dengan titik pemisah ribuan dan koma sebagai desimal
 const formatNumber = (num) => {
     let [integer, decimal] = num.toString().split('.'); // Pisahkan bagian integer dan desimal
     integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Format ribuan dengan titik
@@ -71,32 +72,48 @@ const calculate = (btnValue) => {
     if (btnValue === "=" && output !== "") {
         // Hapus pemisah ribuan dan evaluasi
         output = removeThousandSeparators(output);
-        output = eval(output.replace("%", "/100").replace(",", "."));
+        output = eval(output.replace("%", "/100")); // Evaluasi ekspresi
         output = formatNumber(output); // Format hasil dengan pemisah ribuan
+        isResultDisplayed = true; // Tandai bahwa hasil sudah ditampilkan
     } 
     else if (btnValue === "AC") {
         output = "";
+        isResultDisplayed = false; // Reset status
     } 
     else if (btnValue === "DEL") {
         output = output.slice(0, -1); // Menghapus karakter terakhir
+        isResultDisplayed = false; // Reset status
     }
     else {
-        // agar operator muncul lebih dari sekali berturut-turut
-        if (operator.includes(btnValue)) {
-            if (output !== "" && !operator.includes(AngkaTerakhir)) {
+        // Jika hasil sudah ditampilkan, dan pengguna menekan angka atau operator
+        if (isResultDisplayed) {
+            // Jika pengguna menekan angka, kita mulai dari hasil
+            if (!operator.includes(btnValue)) {
+                output = removeThousandSeparators(output); // Hapus pemisah ribuan dari hasil
+                output += btnValue; // Tambahkan angka baru
+            } else {
+                // Jika pengguna menekan operator, kita tambahkan operator ke hasil
+                output += btnValue; // Tambahkan operator
+            }
+            isResultDisplayed = false; // Reset status untuk input baru
+        } else {
+            // agar operator muncul lebih dari sekali berturut-turut
+            if (operator.includes(btnValue)) {
+                if (output !== "" && !operator.includes(AngkaTerakhir)) {
+                    output += btnValue;
+                }
+            } else {
+                // Jika karakter yang dimasukkan bukan operator, tambahkan angka
                 output += btnValue;
             }
-        } else {
-            // Jika karakter yang dimasukkan bukan operator, tambahkan angka
-            output += btnValue;
         }
     }
 
-    // Jangan format angka saat input
+    // Format output dengan pemisah ribuan setiap kali input
     if (output !== "" && !operator.includes(output.slice(-1))) {
-        display.value = output; // Tampilkan output tanpa pemformatan saat input
+        display.value = formatNumber(output); // Tampilkan output dengan pemformatan
     } else {
-        display.value = output;
+        display.value = output; // Tampilkan output tanpa pemformatan saat operator
     }
 };
 

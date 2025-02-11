@@ -43,84 +43,89 @@
 <script>
 
 const display = document.querySelector(".display");
-const buttons = document.querySelectorAll("button");
-const operator = ["%", "*", "/", "-", "+", "="];
-let output = "";
-let isResultDisplayed = false; // Menandakan apakah hasil sudah ditampilkan
+        const buttons = document.querySelectorAll("button");
+        const operator = ["%", "*", "/", "-", "+", "="];
+        let output = "";
+        let isResultDisplayed = false; // Menandakan apakah hasil sudah ditampilkan
 
-// Fungsi untuk memformat angka dengan titik pemisah ribuan dan koma sebagai desimal
-const formatNumber = (num) => {
-    let [integer, decimal] = num.toString().split('.'); // Pisahkan bagian integer dan desimal
-    integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Format ribuan dengan titik
-    return decimal ? `${integer},${decimal}` : integer; // Gabungkan kembali jika ada desimal
-};
+        // Fungsi untuk memformat angka dengan titik pemisah ribuan
+        const formatNumber = (num) => {
+            let [integer, decimal] = num.toString().split('.'); // Pisahkan bagian integer dan desimal
+            integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Format ribuan dengan titik
+            return decimal ? `${integer}.${decimal}` : integer; // Gabungkan kembali jika ada desimal
+        };
 
-// Fungsi untuk menghapus pemisah ribuan (titik) sebelum perhitungan
-const removeThousandSeparators = (num) => {
-    return num.replace(/\./g, ''); // Hapus titik sebagai pemisah ribuan
-};
+        // Fungsi untuk menghapus pemisah ribuan (titik) sebelum perhitungan
+        const removeThousandSeparators = (num) => {
+            return num.replace(/\./g, ''); // Hapus titik sebagai pemisah ribuan
+        };
 
-const calculate = (btnValue) => {
-    display.focus();
+        const calculate = (btnValue) => {
+            display.focus();
 
-    // Pastikan output adalah string sebelum menggunakan slice
-    output = output.toString();  // Pastikan output adalah string
+            // Pastikan output adalah string sebelum menggunakan slice
+            output = output.toString();  // Pastikan output adalah string
 
-    // Cek karakter terakhir dalam output
-    const AngkaTerakhir = output.slice(-1);
+            // Cek karakter terakhir dalam output
+            const AngkaTerakhir = output.slice(-1);
 
-    if (btnValue === "=" && output !== "") {
-        // Hapus pemisah ribuan dan evaluasi
-        output = removeThousandSeparators(output);
-        output = eval(output.replace("%", "/100")); // Evaluasi ekspresi
-        output = formatNumber(output); // Format hasil dengan pemisah ribuan
-        isResultDisplayed = true; // Tandai bahwa hasil sudah ditampilkan
-    } 
-    else if (btnValue === "AC") {
-        output = "";
-        isResultDisplayed = false; // Reset status
-    } 
-    else if (btnValue === "DEL") {
-        output = output.slice(0, -1); // Menghapus karakter terakhir
-        isResultDisplayed = false; // Reset status
-    }
-    else {
-        // Jika hasil sudah ditampilkan, dan pengguna menekan angka atau operator
-        if (isResultDisplayed) {
-            // Jika pengguna menekan angka, kita mulai dari hasil
-            if (!operator.includes(btnValue)) {
-                output = removeThousandSeparators(output); // Hapus pemisah ribuan dari hasil
-                output += btnValue; // Tambahkan angka baru
-            } else {
-                // Jika pengguna menekan operator, kita tambahkan operator ke hasil
-                output += btnValue; // Tambahkan operator
-            }
-            isResultDisplayed = false; // Reset status untuk input baru
-        } else {
-            // agar operator muncul lebih dari sekali berturut-turut
-            if (operator.includes(btnValue)) {
-                if (output !== "" && !operator.includes(AngkaTerakhir)) {
-                    output += btnValue;
+            if (btnValue === "=" && output !== "") {
+                // Hapus pemisah ribuan dan evaluasi
+                output = removeThousandSeparators(output);
+                try {
+                    // Evaluasi ekspresi dan pastikan hasilnya adalah angka
+                    let result = eval(output.replace("%", "/100")); // Evaluasi ekspresi
+                    output = formatNumber(result); // Format hasil dengan pemisah ribuan
+                } catch (error) {
+                    output = "Error"; // Jika terjadi kesalahan, tampilkan pesan error
                 }
-            } else {
-                // Jika karakter yang dimasukkan bukan operator, tambahkan angka
-                output += btnValue;
+                isResultDisplayed = true; // Tandai bahwa hasil sudah ditampilkan
+            } 
+            else if (btnValue === "AC") {
+                output = "";
+                isResultDisplayed = false; // Reset status
+            } 
+            else if (btnValue === "DEL") {
+                output = output.slice(0, -1); // Menghapus karakter terakhir
+                isResultDisplayed = false; // Reset status
             }
-        }
-    }
+            else {
+                // Jika hasil sudah ditampilkan, dan pengguna menekan angka atau operator
+                if (isResultDisplayed) {
+                    // Jika pengguna menekan angka, kita mulai dari hasil
+                    if (!operator.includes(btnValue)) {
+                        output = btnValue; // Ganti output dengan angka baru
+                    } else {
+                        // Jika pengguna menekan operator, kita tambahkan operator ke hasil
+                        output += btnValue; // Tambahkan operator
+                    }
+                    isResultDisplayed = false; // Reset status untuk input baru
+                } else {
+                    // Agar operator muncul lebih dari sekali berturut-turut
+                    if (operator.includes(btnValue)) {
+                        if (output !== "" && !operator.includes(AngkaTerakhir)) {
+                            output += btnValue;
+                        }
+                    } else {
+                        // Jika karakter yang dimasukkan bukan operator, tambahkan angka
+                        output += btnValue;
+                    }
+                }
+            }
 
-    // Format output dengan pemisah ribuan setiap kali input
-    if (output !== "" && !operator.includes(output.slice(-1))) {
-        display.value = formatNumber(output); // Tampilkan output dengan pemformatan
-    } else {
-        display.value = output; // Tampilkan output tanpa pemformatan saat operator
-    }
-};
+            // Format output dengan pemisah ribuan setiap kali input
+            if (output !== "" && !operator.includes(output.slice(-1))) {
+                display.value = formatNumber(output); // Tampilkan output dengan pemformatan
+            } else {
+                display.value = output; // Tampilkan output tanpa pemformatan jika operator terakhir
+            }
+        };
 
-// Menambahkan event listener untuk setiap tombol
-buttons.forEach((button) => {
-    button.addEventListener("click", (e) => calculate(e.target.dataset.value));
-});
-
+        buttons.forEach(button => {
+            button.addEventListener("click", () => {
+                const btnValue = button.getAttribute("data-value");
+                calculate(btnValue); // Panggil fungsi perhitungan
+            });
+        });
 </script>
 </html>

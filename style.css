@@ -73,6 +73,3 @@ body {
 .operator:active {
     transform: scale(0.95);  
 }
-/* #twoblok{
-    grid-column: span 2;
-} */

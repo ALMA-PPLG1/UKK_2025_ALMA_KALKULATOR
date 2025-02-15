@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <input type="text" class="display" id="display" disabled>
+        <div class="buttons">
+            <button class="operator" data-value="AC">AC</button>
+            <button class="operator" data-value="DEL">DEL</button>
+            <button class="operator" data-value="%">-</button> <!-- Ganti fungsi persen menjadi minus -->
+            <button class="operator" data-value="/">/</button>
+
+            <button data-value="7">7</button>
+            <button data-value="8">8</button>
+            <button data-value="9">9</button>
+            <button class="operator" data-value="*">*</button>
+
+            <button data-value="4">4</button>
+            <button data-value="5">5</button>
+            <button data-value="6">6</button>
+            <button class="operator" data-value="-">-</button>
+
+            <button data-value="1">1</button>
+            <button data-value="2">2</button>
+            <button data-value="3">3</button>
+            <button class="operator" data-value="+">+</button>
+
+            <button data-value="0">0</button>
+            <button data-value="00">00</button>
+            <button data-value="000">000</button>
+            <button id="twoblok" class="operator" data-value="=">=</button>
+        </div>
+    </div>
+
+    <script>
+const display = document.querySelector(".display");
+const buttons = document.querySelectorAll("button");
+let input = "";
+let operatorUsed = false; // Untuk memeriksa apakah operator telah digunakan
+let decimalUsed = false; // Untuk memeriksa apakah titik desimal telah digunakan
+let resultDisplayed = false; // Untuk memeriksa apakah hasil ditampilkan
+
+// Format angka dengan pemisah ribuan
+const formatNumber = (num) => {
+    let [integer, decimal] = num.toString().split('.');
+    // Menambahkan titik sebagai pemisah ribuan
+    integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return decimal ? `${integer}.${decimal}` : integer;
+};
+
+// Hapus pemisah ribuan untuk perhitungan
+const removeThousandSeparators = (num) => {
+    return num.replace(/\./g, '');
+};
+
+// Update display setelah setiap input
+const updateDisplay = () => {
+    display.value = formatNumber(input); // Menampilkan angka dengan pemisah ribuan
+};
+
+// Tangani klik tombol
+buttons.forEach(button => {
+    button.addEventListener("click", () => {
+        const value = button.getAttribute("data-value");
+
+        if (value === "AC") {
+            // Reset kalkulator
+            input = "";
+            operatorUsed = false;
+            decimalUsed = false;
+            resultDisplayed = false;
+            updateDisplay();
+            return;
+        }
+
+        if (value === "DEL") {
+            // Hapus satu karakter terakhir
+            input = input.slice(0, -1);
+            if (input.includes(".")) {
+                decimalUsed = true;
+            }
+            operatorUsed = false;
+            updateDisplay();
+            return;
+        }
+
+        if (value === "=") {
+            // Evaluasi ekspresi dan tampilkan hasil
+            let calcInput = removeThousandSeparators(input); // Hapus pemisah ribuan sebelum menghitung
+
+            try {
+                let result = eval(calcInput);
+                input = result.toString();
+
+                // Jika hasilnya desimal, pastikan desimal tetap ada jika perlu
+                if (result % 1 === 0) {
+                    input = result.toString(); // Bilangan bulat tanpa desimal
+                } else {
+                    input = result.toFixed(10).replace(/(\.\d+?)0+$/, '$1'); // Format agar desimal tetap ada
+                }
+
+                updateDisplay();
+                resultDisplayed = true;
+            } catch (error) {
+                input = "Error";
+                updateDisplay();
+                resultDisplayed = false;
+            }
+
+            operatorUsed = false;
+            decimalUsed = false;
+            return;
+        }
+
+        if (["+", "-", "*", "/"].includes(value)) {
+            // Mencegah dua operator berturut-turut
+            if (operatorUsed) return;
+            if (input === "" && value !== "-") return; // Mencegah memulai dengan operator kecuali minus
+
+            input += value;
+            operatorUsed = true;
+            decimalUsed = false; // Reset penggunaan desimal setelah operator
+            updateDisplay();
+            return;
+        }
+
+
+        // Jika hasil ditampilkan, reset input dan mulai dengan angka baru
+        if (resultDisplayed) {
+            input = "";
+            resultDisplayed = false;
+        }
+
+        input += value;
+        operatorUsed = false; // Reset penggunaan operator setelah menambahkan angka
+        updateDisplay();
+    });
+});
+
+
+    </script>
+</body>
+</html>
